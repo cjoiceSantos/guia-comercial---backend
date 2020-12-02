@@ -3,21 +3,47 @@ const connection = require('../database/connection');
 module.exports = {
 
     async insert(request, response) {
-        const { cpf, first_name, surname, date_of_birth, sexo, have_company } = request.body;
+        const { 
+            cpf, 
+            first_name, 
+            last_name, 
+            birth_date, 
+            gender, 
+            email,
+            password  
+        } = request.body;
+        const image_name = request.file.filename; 
 
         const [id] = await connection('user').insert({
-            cpf,
-            first_name,
-            surname,
-            date_of_birth,
-            sexo,
-            have_company
+            email,
+            password,
         });
-
         if (!id) {
             return response.status(404).json({ error: "Error when registering user" });
         }
-        return response.status(200).json(id);
+        
+        await connection('people').insert({
+            cpf, 
+            first_name, 
+            last_name, 
+            birth_date, 
+            gender, 
+            image_name,
+            'user_id':id 
+        });
+        return response.status(200).json({
+            cpf, 
+            first_name, 
+            last_name, 
+            birth_date, 
+            gender,
+            image_name,
+            user: {
+                email,
+                password
+            },
+            'user_id':id 
+        });
     },
 
     async delete(request, response) {
@@ -34,7 +60,7 @@ module.exports = {
 
     async update(request, response) {
         const id = request.headers.authorization;
-        const { cpf, first_name, surname, date_of_birth, sexo } = request.body;
+        const { cpf, first_name, last_name, date_of_birth, sexo } = request.body;
 
         const user = await connection('user').where('id', id).select('*').first();
 
@@ -76,5 +102,4 @@ module.exports = {
         const users = await connection('user').select('*');
         return response.json(users);
     }
-
 }

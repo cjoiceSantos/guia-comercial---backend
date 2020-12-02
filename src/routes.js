@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-
+const multer = require('multer');
 const AuthMidlleware = require('./middlewares/auth');
 
+const multerConfig = require('./config/multer');
 const UserController = require('./controllers/UserController');
 const CompanyController = require('./controllers/CompanyController');
 const CompanyProfileController = require('./controllers/CompanyProfileController');
@@ -15,17 +16,19 @@ const AuthController = require('./controllers/AuthController');
 router.post('/auth/login', AuthController.login);
 router.get('/auth/me', AuthMidlleware, AuthController.me);
 
-router.post('/user', UserController.insert);
+router.post('/user', multer(multerConfig).single('file') ,UserController.insert);
 router.delete('/user', UserController.delete);
 router.put('/user', UserController.update);
 router.put('/user/haveCompany', UserController.updateHave_Company);
 router.get('/user', UserController.index);
 
-router.post('/category', CategoryController.insert);
+router.post('/category', multer(multerConfig).single('file'), CategoryController.insert);
 router.get('/category', CategoryController.index);
 router.delete('/category/:id', CategoryController.delete);
 
-router.post('/company', CompanyController.insert);
+
+router.post('/company',  multer(multerConfig).single('file'), CompanyController.insert);
+
 router.get('/company', CompanyController.index);
 router.delete('/company/:id', CompanyController.delete);
 router.put('/company/:id', CompanyController.update);
@@ -46,7 +49,6 @@ router.get('/comments/:company_id', CommentsController.index);
 router.delete('/comments/:company_id/:id', CommentsController.delete);
 
 router.post('/session', SessionController.create);
-
 
 module.exports = router;
 

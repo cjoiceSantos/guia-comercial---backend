@@ -3,9 +3,12 @@ const connection = require('../database/connection');
 module.exports = {
 
     async insert(request, response){
-        const { name_category } = request.body; 
+        const { name_category } = request.body;
+        const image_name  = request.file.filename;
+
         const [id] = await connection('category').insert({
-            name_category
+            name_category,
+            image_name
         });
         return response.json(id);
     },

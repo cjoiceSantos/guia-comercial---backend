@@ -5,7 +5,7 @@ module.exports = {
     async insert(request, response){
         const {text_comment} = request.body;
         const {company_id} = request.params;
-        const user_id = request.headers.authorization;
+        const person_id = request.headers.authorization;
     
         const company = await connection('company')
             .where({'id' : company_id})
@@ -19,7 +19,7 @@ module.exports = {
         const [id] = await connection('comments')
             .insert({
                 text_comment,
-                'user_id': user_id,
+                'person_id': person_id,
                 company_id
             });
         return response.status(200).send("Comments register with sucess");
@@ -40,10 +40,10 @@ module.exports = {
         }
 
         const comments = await connection('comments')
-            .join('user', 'user.id', '=', 'comments.user_id')
+            .join('people', 'people.user_id', '=', 'comments.person_id') 
             .limit(4) 
             .offset((page-1)*4)
-            .select(['comments.*', 'user.first_name', 'user.surname'])
+            .select(['comments.*'])
             .where('company_id', company_id);
 
         response.header('X-Total-Count', count['count(*)']);

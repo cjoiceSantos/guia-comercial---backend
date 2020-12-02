@@ -4,21 +4,22 @@ const bcrypt = require('bcrypt');
 module.exports = {
 
     async insert(request, response) {
+        const image_name = request.file.filename;
         const { body } = request
 
         const {
             cnpj,
             name,
+            description,
             instagram,
             whatsapp,
+            category_id,
+            locality, number, city, uf,
             email,
             password,
-            category_id,
-            address: { locality, number, city, uf }
         } = body;
 
         try {
-
             const evaluation = 0;
             const complements = '';
             const category = await connection('category').where('id', category_id).select('*').first();
@@ -35,7 +36,6 @@ module.exports = {
                     updated_at: new Date(),
                 })
 
-
             if (!user_id) {
                 return response.status(404).json({ error: 'User cannot be created!' })
             }
@@ -43,10 +43,11 @@ module.exports = {
             const [company_id] = await connection('company').insert({
                 cnpj,
                 name,
-                description: '',
+                description,
                 evaluation,
                 instagram,
                 whatsapp,
+                image_name,
                 user_id
             });
 
@@ -71,6 +72,7 @@ module.exports = {
                 email,
                 password,
                 category_id,
+                image_name,
                 address: {
                     locality, number, complements, city, uf
                 },
@@ -118,7 +120,6 @@ module.exports = {
         await connection('company').where({ 'id': id, 'user_id': user_id }).delete();
         response.status(200).send("Company deleted with sucess");
     },
-
 
     async update(request, response) {
         const user_id = request.headers.authorization;
